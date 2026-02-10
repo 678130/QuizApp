@@ -34,7 +34,16 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.platform.LocalContext
 
-
+/**
+ * Activity for managing the image gallery.
+ *
+ * Responsibilities:
+ * - Display all images and their labels
+ * - Allow users to add new images from the device
+ * - Let users assign labels to images
+ * - Remove images from the gallery
+ * - Sort images alphabetically
+ */
 class GalleryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +56,14 @@ class GalleryActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Main gallery screen.
+     *
+     * Shows:
+     * - Add image button
+     * - Sort button
+     * - List of images with labels
+     */
     @Composable
     fun GalleryScreen(manager: ImageManager) {
         var images by remember { mutableStateOf(manager.getImages()) }
@@ -152,7 +169,14 @@ class GalleryActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Row representing a single image entry.
+     *
+     * Shows:
+     * - Image preview
+     * - Label
+     * - Delete button
+     */
     @Composable
     fun ImageRow(
         image: ImageItem,

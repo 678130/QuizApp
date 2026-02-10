@@ -2,32 +2,32 @@ package no.hvl.quizapp
 
 import android.net.Uri
 import android.os.Bundle
+
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import coil.compose.rememberAsyncImagePainter
-import androidx.activity.compose.setContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 
 
+/**
+ * Activity responsible for running the quiz.
+ *
+ * It:
+ * - Loads quiz data from ImageManager
+ * - Displays questions and answer buttons
+ * - Tracks score and progress
+ * - Shows a result screen when finished
+ */
 class QuizActivity : AppCompatActivity() {
     private lateinit var content: () -> Unit
 
@@ -79,6 +79,14 @@ class QuizActivity : AppCompatActivity() {
             }
         }
     }
+    /**
+     * Main quiz screen.
+     *
+     * Displays:
+     * - Score and question index
+     * - Current image
+     * - Four answer buttons
+     */
     @Composable
     fun QuizScreen(
         scoreText: String,
@@ -134,6 +142,14 @@ class QuizActivity : AppCompatActivity() {
             Spacer(modifier = Modifier.weight(1f))
         }
     }
+
+    /**
+     * Result screen shown when the quiz is finished.
+     *
+     * Displays:
+     * - Final score
+     * - Restart button
+     */
     @Composable
     fun ResultScreen(
         score: Int,
