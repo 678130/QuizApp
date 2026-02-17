@@ -16,6 +16,7 @@ class Quiz(private val imageManager: ImageManager){
     var score:Int = 0
     var maxScore: Int = 0
     var currentIndex:Int = 0
+    var currentQuestion: Question? = null
 
     init {
         createQuestions()
@@ -33,6 +34,9 @@ class Quiz(private val imageManager: ImageManager){
             list.add(Question(image.label, image.uri, createAlternatives(image.label)))
         }
         questions = list
+        if (questions.isNotEmpty()){
+            currentQuestion = questions[currentIndex]
+        }
     }
 
     /**

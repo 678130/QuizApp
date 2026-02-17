@@ -1,8 +1,6 @@
 package no.hvl.quizapp
 
-import android.net.Uri
 import android.os.Bundle
-
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import coil.compose.rememberAsyncImagePainter
 
 
@@ -41,7 +38,7 @@ class QuizActivity : AppCompatActivity() {
 
         setContent {
             var score by remember { mutableIntStateOf(quiz.score) }
-            var question by remember { mutableStateOf(quiz.questions[quiz.currentIndex]) }
+            var question by remember { mutableStateOf(quiz.currentQuestion) }
             var isFinished by remember { mutableStateOf(false) }
 
             if (isFinished) {
@@ -55,19 +52,18 @@ class QuizActivity : AppCompatActivity() {
                         isFinished = false
                     }
                 )
-            } else {
+            } else if (question != null) {
                 QuizScreen(
                     scoreText = "Score $score/${quiz.currentIndex}",
                     indexText = "Question ${quiz.currentIndex + 1}/${quiz.questions.size}",
-                    imageUri = question.imageUri,
-                    options = question.alternatives,
+                    imageUri = question!!.imageUri,
+                    options = question!!.alternatives,
                     onOptionClick = { selected ->
                         if (quiz.evalAnswer(selected)) {
                             quiz.score++
                             score = quiz.score
                         }
-                        if (quiz.nextQuestion() == null)
-                        {
+                        if (quiz.nextQuestion() == null) {
                             isFinished = true
                         }
 
@@ -76,7 +72,11 @@ class QuizActivity : AppCompatActivity() {
                         }
                     }
                 )
+            } else {
+                NotEnoughQuestionsScreen()
             }
+
+
         }
     }
     /**
@@ -188,4 +188,29 @@ class QuizActivity : AppCompatActivity() {
             Spacer(modifier = Modifier.weight(1f))
         }
     }
+
+    @Composable
+    fun NotEnoughQuestionsScreen() {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "Not enough questions.",
+                fontSize = 22.sp
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+        }
+    }
+
 }
+
+
