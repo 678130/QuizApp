@@ -18,12 +18,7 @@ import java.io.File
  * as a file named "metadata.json".
  */
 class ImageManager(private val context: Context) {
-    private val db = Room.databaseBuilder(
-        context,
-        AppDatabase::class.java,
-        "images.db"
-    ).allowMainThreadQueries().build()
-
+    val db = (context.applicationContext as App).db
     private val dao = db.imageDao()
     private var images = mutableListOf<ImageEntry>()
 

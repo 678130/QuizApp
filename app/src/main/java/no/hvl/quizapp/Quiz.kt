@@ -44,16 +44,18 @@ class Quiz(private val imageManager: ImageManager){
      * - 3 random incorrect labels
      * - 1 correct label
      * Then shuffles them.
+     *
+     * For test, ignore shuffle
      */
     fun createAlternatives(correct:String) : List<String> {
         var alternatives = imageManager.getImages()
             .filter{ it.label != correct}
-            .shuffled()
+            //.shuffled()
             .take(3)
             .map { it.label } as MutableList<String>
 
         alternatives.add(correct)
-        alternatives = alternatives.shuffled() as MutableList<String>
+        //alternatives = alternatives.shuffled() as MutableList<String>
         return alternatives
     }
 

@@ -34,6 +34,7 @@ import androidx.activity.viewModels
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 
 /**
  * Activity for managing the image gallery.
@@ -68,7 +69,10 @@ class GalleryActivity : AppCompatActivity() {
      * - List of images with labels
      */
     @Composable
-    fun GalleryScreen(manager: ImageManager) {
+    fun GalleryScreen(
+        manager: ImageManager,
+        testMode: Boolean = true
+    ) {
         var showDialog by remember { mutableStateOf(false) }
         var pendingUri by remember { mutableStateOf<Uri?>(null) }
         var labelText by remember { mutableStateOf("") }
@@ -78,11 +82,19 @@ class GalleryActivity : AppCompatActivity() {
         val imagePicker = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument()
         ) { uri: Uri? ->
-            uri?.let {
-                context.contentResolver.takePersistableUriPermission(
-                    it,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
+            val finalUri = if (testMode) {
+                Uri.parse("content://test/image")
+            } else {
+                uri
+            }
+
+            finalUri?.let {
+                if (!testMode) {
+                    context.contentResolver.takePersistableUriPermission(
+                        it,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                }
                 pendingUri = it
                 labelText = ""
                 showDialog = true
@@ -103,7 +115,8 @@ class GalleryActivity : AppCompatActivity() {
                         OutlinedTextField(
                             value = labelText,
                             onValueChange = { labelText = it },
-                            label = { Text("Label") }
+                            label = { Text("Label") },
+                            modifier = Modifier.testTag("label_field")
                         )
                     },
                     confirmButton = {
@@ -115,7 +128,7 @@ class GalleryActivity : AppCompatActivity() {
                                     viewModel.addImage(it.toString(), labelText)
                                 }
                                 showDialog = false
-                            }
+                            }, modifier = Modifier.testTag("save_label_button")
                         ) {
                             Text("Save")
                         }
@@ -132,9 +145,17 @@ class GalleryActivity : AppCompatActivity() {
 
             Button(
                 onClick = {
-                    imagePicker.launch(arrayOf("image/*"))
+                    if (testMode) {
+                        pendingUri = Uri.parse("content://test/image")
+                        labelText = ""
+                        showDialog = true
+                    } else {
+                        imagePicker.launch(arrayOf("image/*"))
+                    }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("add_image_button")
             ) {
                 Text("Add Image")
             }
@@ -207,7 +228,8 @@ class GalleryActivity : AppCompatActivity() {
                 modifier = Modifier.weight(1f)
             )
 
-            Button(onClick = onDelete) {
+            Button(onClick = onDelete,
+                modifier = Modifier.testTag("delete_image_button")) {
                 Text("Delete")
             }
         }

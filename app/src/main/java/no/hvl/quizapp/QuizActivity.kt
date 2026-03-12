@@ -16,6 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import kotlin.getValue
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 
 /**
@@ -28,7 +31,7 @@ import kotlin.getValue
  * - Shows a result screen when finished
  */
 class QuizActivity : AppCompatActivity() {
-    private val viewModel: QuizViewModel by viewModels()
+    val viewModel: QuizViewModel by viewModels()
     private lateinit var content: () -> Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +69,7 @@ class QuizActivity : AppCompatActivity() {
                     indexText = "Question ${quiz.currentIndex + 1}/${quiz.questions.size}",
                     imageUri = currentQuestion!!.imageUri,
                     options = currentQuestion!!.alternatives,
+                    question = currentQuestion,
                     onOptionClick = { selected ->
                         if (quiz.evalAnswer(selected)) {
                             quiz.score++
@@ -101,6 +105,7 @@ class QuizActivity : AppCompatActivity() {
         indexText: String,
         imageUri: String?,
         options: List<String>,
+        question: Question,
         onOptionClick: (String) -> Unit
     ) {
         Column(
@@ -111,7 +116,10 @@ class QuizActivity : AppCompatActivity() {
 
             Text(
                 text = scoreText,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                modifier = Modifier.semantics {
+                    contentDescription = "scoreText"
+                }
             )
             Text(
                 text = indexText,
@@ -134,13 +142,18 @@ class QuizActivity : AppCompatActivity() {
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-
                 options.forEach { option ->
+
                     Button(
                         onClick = { onOptionClick(option) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp)
+                            .testTag(
+                                if (option == question.correct)
+                                    "correct_option"
+                                else
+                                    "wrong_option"
+                            )
                     ) {
                         Text(option)
                     }

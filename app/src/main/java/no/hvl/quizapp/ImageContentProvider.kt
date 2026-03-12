@@ -11,13 +11,7 @@ class ImageContentProvider : ContentProvider() {
     private lateinit var db: AppDatabase
 
     override fun onCreate(): Boolean {
-        db = Room.databaseBuilder(
-            context!!,
-            AppDatabase::class.java,
-            "images.db"
-        ).allowMainThreadQueries()
-            .build()
-
+        db = (context!!.applicationContext as App).db
         return true
     }
 
