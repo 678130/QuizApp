@@ -3,6 +3,7 @@ package no.hvl.quizapp
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import kotlin.getValue
 
 
 /**
@@ -26,20 +28,26 @@ import coil.compose.rememberAsyncImagePainter
  * - Shows a result screen when finished
  */
 class QuizActivity : AppCompatActivity() {
+    private val viewModel: QuizViewModel by viewModels()
     private lateinit var content: () -> Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val manager: ImageManager = (application as App).imageManager
-        val quiz = Quiz(manager)
+        //val manager: ImageManager = (application as App).imageManager
+        //val quiz = Quiz(manager)
 
 
         setContent {
-            var score by remember { mutableIntStateOf(quiz.score) }
-            var question by remember { mutableStateOf(quiz.currentQuestion) }
-            var isFinished by remember { mutableStateOf(false) }
+            //var score by remember { mutableIntStateOf(quiz.score) }
+            //var question by remember { mutableStateOf(quiz.currentQuestion) }
+            //var isFinished by remember { mutableStateOf(false) }
+            val vm = viewModel
+            val quiz = vm.quiz
+            val score = vm.score
+            val currentQuestion = vm.question
+            val isFinished = vm.isFinished
 
             if (isFinished) {
                 ResultScreen(
@@ -47,28 +55,28 @@ class QuizActivity : AppCompatActivity() {
                     maxScore = quiz.questions.size,
                     onRestart = {
                         quiz.restartQuiz()
-                        score = 0
-                        question = quiz.questions[quiz.currentIndex]
-                        isFinished = false
+                        vm.score = 0
+                        vm.question = quiz.questions[quiz.currentIndex]
+                        vm.isFinished = false
                     }
                 )
-            } else if (question != null) {
+            } else if (currentQuestion != null) {
                 QuizScreen(
-                    scoreText = "Score $score/${quiz.currentIndex}",
+                    scoreText = "Score ${quiz.score}/${quiz.currentIndex}",
                     indexText = "Question ${quiz.currentIndex + 1}/${quiz.questions.size}",
-                    imageUri = question!!.imageUri,
-                    options = question!!.alternatives,
+                    imageUri = currentQuestion!!.imageUri,
+                    options = currentQuestion!!.alternatives,
                     onOptionClick = { selected ->
                         if (quiz.evalAnswer(selected)) {
                             quiz.score++
-                            score = quiz.score
+                            vm.score = quiz.score
                         }
                         if (quiz.nextQuestion() == null) {
-                            isFinished = true
+                            vm.isFinished = true
                         }
 
                         if (quiz.currentIndex < quiz.questions.size) {
-                            question = quiz.questions[quiz.currentIndex]
+                            vm.question = quiz.questions[quiz.currentIndex]
                         }
                     }
                 )

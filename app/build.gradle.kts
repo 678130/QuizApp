@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    kotlin("kapt")
 }
 
 android {
@@ -55,6 +56,9 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("androidx.activity:activity-compose:1.8.2")
-
-
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 }

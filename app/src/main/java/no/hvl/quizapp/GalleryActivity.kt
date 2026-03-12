@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.net.Uri
+import androidx.activity.viewModels
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.platform.LocalContext
@@ -45,6 +46,8 @@ import androidx.compose.ui.platform.LocalContext
  * - Sort images alphabetically
  */
 class GalleryActivity : AppCompatActivity() {
+    private val viewModel: GalleryViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -66,11 +69,9 @@ class GalleryActivity : AppCompatActivity() {
      */
     @Composable
     fun GalleryScreen(manager: ImageManager) {
-        var images by remember { mutableStateOf(manager.getImages()) }
         var showDialog by remember { mutableStateOf(false) }
         var pendingUri by remember { mutableStateOf<Uri?>(null) }
         var labelText by remember { mutableStateOf("") }
-        var sort by remember { mutableStateOf(true) }
 
         val context = LocalContext.current
 
@@ -109,8 +110,9 @@ class GalleryActivity : AppCompatActivity() {
                         Button(
                             onClick = {
                                 pendingUri?.let {
-                                    manager.addImage(it.toString(), labelText)
-                                    images = manager.getImages()
+                                    //manager.addImage(it.toString(), labelText)
+                                    //images = manager.getImages()
+                                    viewModel.addImage(it.toString(), labelText)
                                 }
                                 showDialog = false
                             }
@@ -139,13 +141,15 @@ class GalleryActivity : AppCompatActivity() {
 
             Button(
                 onClick = {
-                    if (sort){
-                        images = images.sortedBy { (it.label) }
-                        sort = false
+                    if (viewModel.sortAscending){
+                        viewModel.sortImages()
+                        !viewModel.sortAscending
                     }
-                    else if (!sort) {
-                        images = images.sortedByDescending { it.label }
-                        sort = true
+                    else if (!viewModel.sortAscending) {
+                        //images = images.sortedByDescending { it.label }
+                        viewModel.sortImagesDesc()
+                        //sort = true
+                        !viewModel.sortAscending
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -156,12 +160,13 @@ class GalleryActivity : AppCompatActivity() {
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn {
-                items(images) { image ->
+                items(viewModel.images) { image ->
                     ImageRow(
                         image = image,
                         onDelete = {
-                            manager.removeImage(image)
-                            images = manager.getImages()
+                            //manager.removeImage(image)
+                            //images = manager.getImages()
+                            viewModel.deleteImage(image)
                         }
                     )
                 }
@@ -179,7 +184,7 @@ class GalleryActivity : AppCompatActivity() {
      */
     @Composable
     fun ImageRow(
-        image: ImageItem,
+        image: ImageEntry,
         onDelete: () -> Unit
     ) {
         Row(

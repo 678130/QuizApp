@@ -1,6 +1,7 @@
 package no.hvl.quizapp
 
 import android.content.Context
+import androidx.room.Room
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -17,14 +18,17 @@ import java.io.File
  * as a file named "metadata.json".
  */
 class ImageManager(private val context: Context) {
+    private val db = Room.databaseBuilder(
+        context,
+        AppDatabase::class.java,
+        "images.db"
+    ).allowMainThreadQueries().build()
 
-    private val metadataFile: File =
-        File(context.filesDir, "metadata.json")
-
-    private val images = mutableListOf<ImageItem>()
+    private val dao = db.imageDao()
+    private var images = mutableListOf<ImageEntry>()
 
     init {
-        loadMetadata()
+        images = getImages() as MutableList<ImageEntry>
     }
 
     /**
@@ -34,69 +38,29 @@ class ImageManager(private val context: Context) {
      * @param label The label assigned to the image
      */
     fun addImage(uri: String, label: String) {
-        val item = ImageItem(uri, label)
+        val item = ImageEntry(uri=uri, label=label)
         images.add(item)
-        saveMetadata()
+        dao.insert(item)
     }
 
     /**
      * Returns a copy of the image list.
      * A copy is returned to prevent external modification.
      */
-    fun getImages(): List<ImageItem> {
-        return images.toList()
+    fun getImages(): List<ImageEntry> {
+        return dao.getAll()
     }
 
-    /**
-     * Saves the current image metadata to the JSON file.
-     *
-     * Structure:
-     * [
-     *   { "uri": "...", "label": "cat" },
-     *   { "uri": "...", "label": "dog" }
-     * ]
-     */
-    private fun saveMetadata() {
-        val jsonArray = JSONArray()
-
-        for (image in images) {
-            val obj = JSONObject()
-            obj.put("uri", image.uri)
-            obj.put("label", image.label)
-            jsonArray.put(obj)
-        }
-
-        metadataFile.writeText(jsonArray.toString())
-    }
-
-    /**
-     * Loads metadata from the JSON file into memory.
-     * If the file does not exist, nothing happens.
-     */
-    private fun loadMetadata() {
-        if (!metadataFile.exists()) return
-
-        val text = metadataFile.readText()
-        val jsonArray = JSONArray(text)
-
-        for (i in 0 until jsonArray.length()) {
-            val obj = jsonArray.getJSONObject(i)
-            val item = ImageItem(
-                obj.getString("uri"),
-                obj.getString("label")
-            )
-            images.add(item)
-        }
-    }
 
     /**
      * Removes an image from the list and updates the metadata file.
      *
      * @param image The image item to remove
      */
-    fun removeImage(image: ImageItem) {
+    fun removeImage(image: ImageEntry) {
         images.remove(image)
-        saveMetadata()
+        dao.delete(image)
+        //saveMetadata()
     }
 
 }

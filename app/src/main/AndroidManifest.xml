@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QuizApp"
         android:name=".App">
+        <provider
+            android:name=".ImageContentProvider"
+            android:authorities="no.hvl.quizapp.provider"
+            android:exported="true"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
